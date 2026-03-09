@@ -96,7 +96,7 @@ export default function App() {
       const r = runValuation(form, { skipVC: false })
       setResults(r)
       setDir(1)
-      setStep(5)
+      setStep(leadData ? 6 : 5)
     }
   }
 
@@ -106,7 +106,7 @@ export default function App() {
     const r = runValuation(form, { skipVC: true })
     setResults(r)
     setDir(1)
-    setStep(5)
+    setStep(leadData ? 6 : 5)
   }
 
   function handleAddVCAssumptions() {
