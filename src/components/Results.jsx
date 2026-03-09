@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   TrendingUp, BarChart2, DollarSign, Layers, Lock,
-  CheckCircle, Star, RefreshCw, FileText, Download, PlusCircle,
+  CheckCircle, Star, RefreshCw, Download, PlusCircle,
 } from 'lucide-react'
 import { INDUSTRY_MULTIPLES, STAGES, formatCurrency, formatCurrencyFull } from '../lib/valuationEngine.js'
 import { ConfidenceGauge } from './ui/shared.jsx'
@@ -58,7 +58,7 @@ const METHOD_META = {
     shortLabel: 'Berkus',
     icon: Star,
     color: 'purple',
-    description: 'Five qualitative factors (Team, Product, Market, Traction, Competition) each worth up to $500K.',
+    description: 'Five qualitative factors (Team, Product, Market, Traction, GTM) each worth up to $500K. Max $2.5M.',
     whenUsed: 'Best for pre-seed and seed stages where there is little or no revenue.',
     formula: 'Sum of (score/10 × $500K) for each of 5 factors. Maximum: $2.5M.',
     startups: [
@@ -74,53 +74,39 @@ const METHOD_META = {
     color: 'blue',
     description: 'Applies weighted qualitative scores against a $5M regional baseline to derive a risk-adjusted valuation.',
     whenUsed: 'Most accurate for seed-stage companies with limited financial history.',
-    formula: 'Baseline ($5M) × weighted score × 2. Weights: Team 30%, Market 25%, Product 15%, Sales 15%, Competition 10%, Other 5%.',
+    formula: 'Baseline ($5M) × weighted score × 2. Weights: Team 30%, Market 25%, Product 15%, Traction 15%, GTM 10%, Competitive Advantage 5%.',
     startups: [
       { name: 'Uber', domain: 'uber.com', valuation: '~$5.4M pre-money', year: 2010, note: 'Benchmarked against SF marketplace peers; above-average team and market size score' },
       { name: 'Canva', domain: 'canva.com', valuation: '~$3.6M pre-money', year: 2012, note: 'AU regional baseline; strong management score offset smaller local market size' },
       { name: 'Warby Parker', domain: 'warbyparker.com', valuation: '~$2.5M pre-money', year: 2010, note: 'Scored on founding team pedigree (Wharton MBAs) and strategic supplier partnerships' },
     ],
   },
-  vc: {
-    label: 'VC Method',
-    shortLabel: 'VC Method',
-    icon: TrendingUp,
-    color: 'emerald',
-    description: 'Discounts the projected exit value back to today using the VC\'s required rate of return.',
-    whenUsed: 'Applied for Series A+ companies with a credible exit thesis.',
-    formula: '(Exit Value ÷ (1 + Discount Rate)^Years) × (1 − Dilution)',
-    startups: [
-      { name: 'Instagram', domain: 'instagram.com', valuation: '~$25M pre-money', year: 2011, note: 'Benchmark projected a Facebook acquisition exit; acquired for $1B just 12 months later' },
-      { name: 'Twitter', domain: 'twitter.com', valuation: '~$20M pre-money', year: 2007, note: 'USV back-calculated from a $1B+ ad revenue exit thesis at a 30%+ IRR target' },
-      { name: 'Stripe', domain: 'stripe.com', valuation: '~$20M pre-money', year: 2012, note: 'Sequoia projected $1B+ acquisition; discounted at 40–50% IRR for developer payments category' },
-    ],
-  },
-  revenueMultiple: {
-    label: 'Revenue Multiple',
-    shortLabel: 'Revenue ×',
+  arrMultiple: {
+    label: 'ARR Multiple',
+    shortLabel: 'ARR ×',
     icon: DollarSign,
     color: 'amber',
-    description: 'Applies an industry-specific revenue multiple to ARR. Widely used by investors as a quick benchmark.',
-    whenUsed: 'Applied for seed and Series A+ companies with measurable revenue.',
-    formula: 'ARR × Industry Multiple (SaaS: 8×, AI: 15×, Fintech: 6×, E-Commerce: 3×).',
+    description: 'Applies an industry-specific revenue multiple to ARR (or annualised MRR). A quick but widely used investor benchmark.',
+    whenUsed: 'Applied when the startup has measurable ARR or MRR.',
+    formula: 'ARR × Industry Multiple. SaaS: 8×, AI SaaS: 15×, Fintech: 6×, Marketplace: 5×, E-Commerce Software: 4×, Other B2B: 5×.',
     startups: [
       { name: 'Snowflake', domain: 'snowflake.com', valuation: '~$12.4B', year: 2020, note: 'Valued at ~23× forward ARR driven by 174% NRR and over 100% revenue growth' },
       { name: 'Zoom', domain: 'zoom.us', valuation: '~$1B', year: 2017, note: 'SaaS video with clear ARR visibility; valued at ~20× ARR on rapid enterprise adoption' },
       { name: 'HubSpot', domain: 'hubspot.com', valuation: '~$200M', year: 2011, note: 'B2B SaaS valued at ~12–13× ARR by Sequoia as benchmark for the inbound marketing category' },
     ],
   },
-  dcf: {
-    label: 'Discounted Cash Flow',
-    shortLabel: 'DCF',
-    icon: FileText,
-    color: 'rose',
-    description: 'Projects 5-year free cash flow plus a terminal value, discounted to present value.',
-    whenUsed: 'Most meaningful for Series A+ with established revenue, margins, and growth trajectory.',
-    formula: 'Σ (FCF_t ÷ (1+r)^t) + Terminal Value ÷ (1+r)^5. Terminal value uses Gordon Growth Model at 3%.',
+  vcPerspective: {
+    label: 'VC Perspective',
+    shortLabel: 'VC Perspective',
+    icon: TrendingUp,
+    color: 'emerald',
+    description: 'Discounts the projected exit value back to today using the VC\'s required rate of return and expected dilution.',
+    whenUsed: 'Always calculated — uses your inputs if provided, otherwise auto-estimated from stage benchmarks.',
+    formula: 'PV = Exit Value ÷ (1 + Return Rate)^Years × (1 − Dilution)',
     startups: [
-      { name: 'Uber', domain: 'uber.com', valuation: '~$51B', year: 2019, note: 'Multi-year revenue history enabled a 5-year FCF model with WACC-based discount for IPO pricing' },
-      { name: 'Spotify', domain: 'spotify.com', valuation: '~€56B', year: 2022, note: 'Stable subscription MRR and 5+ years of data made DCF the primary intrinsic value method' },
-      { name: 'Dropbox', domain: 'dropbox.com', valuation: '~$9.7B', year: 2018, note: 'Predictable self-serve ARR conversion anchored DCF alongside comps for IPO pricing' },
+      { name: 'Instagram', domain: 'instagram.com', valuation: '~$25M pre-money', year: 2011, note: 'Benchmark projected a Facebook acquisition exit; acquired for $1B just 12 months later' },
+      { name: 'Twitter', domain: 'twitter.com', valuation: '~$20M pre-money', year: 2007, note: 'USV back-calculated from a $1B+ ad revenue exit thesis at a 30%+ IRR target' },
+      { name: 'Stripe', domain: 'stripe.com', valuation: '~$20M pre-money', year: 2012, note: 'Sequoia projected $1B+ acquisition; discounted at 40–50% IRR for developer payments category' },
     ],
   },
 }
@@ -135,53 +121,11 @@ const colorMap = {
 }
 
 // ─── Method Detail Panel ──────────────────────────────────────────────────────
-function MethodDetailPanel({ methodKey, value, inputs, vcSkipped, onAddVCAssumptions }) {
+function MethodDetailPanel({ methodKey, value, results, inputs, onAddVCAssumptions }) {
   const meta = METHOD_META[methodKey]
   const c = colorMap[meta.color]
   const Icon = meta.icon
   const isApplicable = value > 0
-
-  if (methodKey === 'vc' && vcSkipped) {
-    return (
-      <div className="rounded-2xl p-6 border border-dashed border-brand-200 dark:border-brand-700
-                      bg-brand-50 dark:bg-brand-500/10 text-center space-y-3">
-        <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center mx-auto">
-          <TrendingUp size={18} className="text-brand-500" />
-        </div>
-        <div>
-          <p className="font-semibold text-gray-900 dark:text-white text-sm">VC Method requires your exit assumptions</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
-            Enter your expected exit value, discount rate, years to exit, and investor dilution to unlock this calculation.
-          </p>
-        </div>
-        {/* Still show real-world examples even when unavailable */}
-        <div className="pt-2 border-t border-brand-200 dark:border-brand-700/50 text-left space-y-2">
-          <p className="text-xs font-semibold text-brand-600 dark:text-brand-400 text-center mb-3">
-            Real startups valued by this method
-          </p>
-          {meta.startups.map(s => (
-            <div key={s.name} className="flex items-center gap-3 p-2 rounded-lg bg-white/60 dark:bg-white/5">
-              <StartupLogo domain={s.domain} name={s.name} size={28} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-900 dark:text-white">{s.name}</span>
-                  <span className="text-xs text-brand-600 dark:text-brand-400 font-medium">{s.valuation}</span>
-                  <span className="text-[10px] text-gray-400">'{String(s.year).slice(2)}</span>
-                </div>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">{s.note}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        {onAddVCAssumptions && (
-          <button onClick={onAddVCAssumptions} className="btn-primary mx-auto mt-2">
-            <PlusCircle size={14} />
-            Add VC assumptions
-          </button>
-        )}
-      </div>
-    )
-  }
 
   return (
     <div className={`rounded-2xl p-5 border ${c.bg} ${c.border}`}>
@@ -213,8 +157,8 @@ function MethodDetailPanel({ methodKey, value, inputs, vcSkipped, onAddVCAssumpt
       {/* Berkus score breakdown */}
       {methodKey === 'berkus' && isApplicable && (
         <div className="grid grid-cols-5 gap-1.5 text-center mb-4">
-          {['Team', 'Product', 'Market', 'Sales', 'Comp.'].map((label, i) => {
-            const keys = ['team', 'product', 'market', 'sales', 'competition']
+          {['Team', 'Product', 'Market', 'Traction', 'GTM'].map((label, i) => {
+            const keys = ['team', 'product', 'market', 'traction', 'gtm']
             const score = inputs[keys[i]] || 1
             return (
               <div key={label} className="rounded-lg p-2 bg-white/60 dark:bg-white/5 text-xs">
@@ -227,13 +171,41 @@ function MethodDetailPanel({ methodKey, value, inputs, vcSkipped, onAddVCAssumpt
         </div>
       )}
 
-      {/* Revenue multiple calc */}
-      {methodKey === 'revenueMultiple' && isApplicable && (
+      {/* ARR Multiple calc */}
+      {methodKey === 'arrMultiple' && isApplicable && results?.arrDetails && (
         <div className="rounded-lg p-2.5 bg-white/60 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 mb-4">
-          {formatCurrencyFull(inputs.annualRevenue)} ARR × {INDUSTRY_MULTIPLES[inputs.industry]?.multiple ?? 4}× ({INDUSTRY_MULTIPLES[inputs.industry]?.label})
-          = <span className={`font-bold ${c.text}`}>{formatCurrency(value)}</span>
+          {formatCurrencyFull(results.arrDetails.arrUsed)}{' '}
+          {results.arrDetails.source === 'mrr_annualised' ? '(MRR × 12) ' : ''}ARR ×{' '}
+          {results.arrDetails.multiple}× ({INDUSTRY_MULTIPLES[inputs.industry]?.label})
+          {' '}= <span className={`font-bold ${c.text}`}>{formatCurrency(value)}</span>
         </div>
       )}
+
+      {/* VC Perspective assumptions */}
+      {methodKey === 'vcPerspective' && isApplicable && results?.vcDetails?.assumptions && (() => {
+        const a = results.vcDetails.assumptions
+        return (
+          <div className="rounded-lg p-2.5 bg-white/60 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 mb-4 space-y-1.5">
+            {a.autoEstimated && (
+              <p className="text-amber-600 dark:text-amber-400 font-medium">
+                Auto-estimated from stage benchmarks. Add your own assumptions in Step 4 to refine this.
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-gray-400">Exit Value:</span> <span className="font-semibold">{formatCurrency(a.exitValue)}</span></div>
+              <div><span className="text-gray-400">Return Rate:</span> <span className="font-semibold">{(a.returnRate * 100).toFixed(0)}%</span></div>
+              <div><span className="text-gray-400">Years:</span> <span className="font-semibold">{a.years}</span></div>
+              <div><span className="text-gray-400">Dilution:</span> <span className="font-semibold">{(a.dilution * 100).toFixed(0)}%</span></div>
+            </div>
+            {a.autoEstimated && onAddVCAssumptions && (
+              <button onClick={onAddVCAssumptions} className="btn-secondary text-xs mt-2 w-full">
+                <PlusCircle size={12} />
+                Edit investor assumptions
+              </button>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Real-world startup examples */}
       {meta.startups && (
@@ -262,16 +234,15 @@ function MethodDetailPanel({ methodKey, value, inputs, vcSkipped, onAddVCAssumpt
 
 // ─── Results Preview (blurred background behind the modal) ───────────────────
 export function ResultsPreview({ results, inputs }) {
-  const { blended, berkus, scorecard, vc, revenueMultiple, dcf, confidence } = results
+  const { blended, berkus, scorecard, arrMultiple, vcPerspective, confidence } = results
   const stage = inputs.stage || 'preseed'
 
   const methods = [
-    { key: 'blended',         value: blended },
-    { key: 'berkus',          value: berkus },
-    { key: 'scorecard',       value: scorecard },
-    { key: 'vc',              value: vc },
-    { key: 'revenueMultiple', value: revenueMultiple },
-    { key: 'dcf',             value: dcf },
+    { key: 'blended',       value: blended },
+    { key: 'berkus',        value: berkus },
+    { key: 'scorecard',     value: scorecard },
+    { key: 'arrMultiple',   value: arrMultiple },
+    { key: 'vcPerspective', value: vcPerspective },
   ].filter(m => m.value > 0)
 
   return (
@@ -466,18 +437,16 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
   const [activeMethod, setActiveMethod] = useState('blended')
   const [showSuccess, setShowSuccess] = useState(true)
 
-  const { blended, berkus, scorecard, vc, revenueMultiple, dcf, confidence, vcSkipped } = results
+  const { blended, berkus, scorecard, arrMultiple, vcPerspective, confidence, vcAutoEstimated } = results
   const stage = inputs.stage || 'preseed'
-  const showVCCard = stage === 'series_a'
 
   // Build the ordered list of method cards to display
   const methodCards = [
-    { key: 'blended',         value: blended,         always: true },
-    { key: 'berkus',          value: berkus,          always: true },
-    { key: 'scorecard',       value: scorecard,       always: true },
-    { key: 'vc',              value: vc,              always: showVCCard },
-    { key: 'revenueMultiple', value: revenueMultiple, always: false },
-    { key: 'dcf',             value: dcf,             always: false },
+    { key: 'blended',       value: blended,       always: true },
+    { key: 'berkus',        value: berkus,         always: true },
+    { key: 'scorecard',     value: scorecard,      always: true },
+    { key: 'arrMultiple',   value: arrMultiple,    always: false },
+    { key: 'vcPerspective', value: vcPerspective,  always: true },
   ].filter(m => m.always || m.value > 0)
 
   return (
@@ -526,20 +495,12 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
       {/* Blended hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-purple-700 p-5 text-white shadow-xl shadow-brand-500/20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12),_transparent)]" />
-        <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <p className="text-brand-200 text-xs font-medium mb-0.5">Blended Valuation</p>
-            <p className="text-3xl font-black">{formatCurrency(blended)}</p>
-            <p className="text-brand-200 text-xs mt-1">
-              Conservative: {formatCurrency(blended * 0.7)} · Optimistic: {formatCurrency(blended * 1.4)}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-brand-200 text-xs">Post-money (est.)</p>
-            <p className="text-xl font-bold">
-              {inputs.investmentAmount > 0 ? formatCurrency(blended + inputs.investmentAmount) : '—'}
-            </p>
-          </div>
+        <div className="relative z-10">
+          <p className="text-brand-200 text-xs font-medium mb-0.5">Blended Valuation</p>
+          <p className="text-3xl font-black">{formatCurrency(blended)}</p>
+          <p className="text-brand-200 text-xs mt-1">
+            Conservative: {formatCurrency(blended * 0.7)} · Optimistic: {formatCurrency(blended * 1.4)}
+          </p>
         </div>
       </div>
 
@@ -556,7 +517,7 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
             const c = colorMap[meta.color]
             const Icon = meta.icon
             const isActive = activeMethod === key
-            const isLocked = key === 'vc' && vcSkipped
+            const isLocked = false
 
             return (
               <button
@@ -603,8 +564,8 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
               <MethodDetailPanel
                 methodKey={activeMethod}
                 value={methodCards.find(m => m.key === activeMethod)?.value ?? 0}
+                results={results}
                 inputs={inputs}
-                vcSkipped={vcSkipped}
                 onAddVCAssumptions={onAddVCAssumptions}
               />
             </motion.div>
@@ -619,12 +580,13 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
           {[
             { label: 'Stage',         value: STAGES[stage]?.label },
             { label: 'Industry',      value: INDUSTRY_MULTIPLES[inputs.industry]?.label },
-            { label: 'ARR',           value: inputs.annualRevenue > 0 ? formatCurrencyFull(inputs.annualRevenue) : '—' },
+            { label: 'ARR',           value: inputs.arr > 0 ? formatCurrencyFull(inputs.arr) : '—' },
+            { label: 'MRR',           value: inputs.mrr > 0 ? formatCurrencyFull(inputs.mrr) : '—' },
             { label: 'Growth Rate',   value: inputs.growthRate > 0 ? `${inputs.growthRate}%` : '—' },
             { label: 'Gross Margin',  value: inputs.grossMargin > 0 ? `${inputs.grossMargin}%` : '—' },
-            { label: 'Exit Value',    value: inputs.exitValue > 0 ? formatCurrency(inputs.exitValue) : '—' },
-            { label: 'Discount Rate', value: `${inputs.discountRate || 30}%` },
-            { label: 'Years to Exit', value: `${inputs.years || 5} years` },
+            { label: 'Exit Value',    value: inputs.exitValue > 0 ? formatCurrency(inputs.exitValue) : vcAutoEstimated ? 'Auto-est.' : '—' },
+            { label: 'Return Rate',   value: `${inputs.returnRate || 30}%` },
+            { label: 'Years to Exit', value: `${inputs.yearsToExit || 5} yrs` },
             { label: 'Dilution',      value: `${inputs.dilution || 20}%` },
           ].map(({ label, value }) => (
             <div key={label}>
@@ -674,19 +636,19 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
         Your valuation was calculated using the methods supported by the data you provided.
       </p>
 
-      {/* Add VC assumptions CTA */}
-      {vcSkipped && onAddVCAssumptions && (
+      {/* Edit VC assumptions CTA — shown when auto-estimated */}
+      {vcAutoEstimated && onAddVCAssumptions && (
         <div className="rounded-xl p-4 border border-dashed border-brand-200 dark:border-brand-700
                         bg-brand-50 dark:bg-brand-500/10 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-brand-700 dark:text-brand-300">Add VC assumptions</p>
+            <p className="text-sm font-medium text-brand-700 dark:text-brand-300">Refine the VC Perspective</p>
             <p className="text-xs text-brand-600/70 dark:text-brand-400/70 mt-0.5">
-              Return to Step 4 to enable the VC Method and update your blended valuation.
+              Your VC estimate used stage benchmarks. Add your own exit assumptions to personalise it.
             </p>
           </div>
           <button onClick={onAddVCAssumptions} className="btn-secondary flex-shrink-0 text-xs px-3 py-2">
             <PlusCircle size={13} />
-            Add assumptions
+            Edit assumptions
           </button>
         </div>
       )}

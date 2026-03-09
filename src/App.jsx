@@ -20,16 +20,17 @@ const DEFAULT_FORM = {
   team: 5,
   product: 5,
   market: 5,
-  sales: 5,
-  competition: 5,
-  annualRevenue: 0,
+  traction: 5,
+  gtm: 5,
+  competitiveAdvantage: 5,
+  arr: 0,
+  mrr: 0,
   growthRate: 0,
   grossMargin: 0,
   exitValue: 0,
-  discountRate: 30,
-  years: 5,
+  yearsToExit: 5,
+  returnRate: 30,
   dilution: 20,
-  investmentAmount: 0,
 }
 
 // ─── Validation per step ──────────────────────────────────────────────────────
@@ -41,15 +42,12 @@ function validateStep(step, data) {
     if (!data.stage) errors.stage = 'Please select your startup stage.'
   }
   if (step === 3) {
-    if (data.stage !== 'preseed' && data.annualRevenue < 0)
-      errors.annualRevenue = 'Revenue cannot be negative.'
+    if ((data.arr ?? 0) < 0) errors.arr = 'ARR cannot be negative.'
+    if ((data.mrr ?? 0) < 0) errors.mrr = 'MRR cannot be negative.'
     if (data.growthRate < 0 || data.growthRate > 10000)
       errors.growthRate = 'Enter a value between 0 and 10000.'
     if (data.grossMargin < 0 || data.grossMargin > 100)
       errors.grossMargin = 'Enter a value between 0 and 100.'
-  }
-  if (step === 4) {
-    if (data.investmentAmount < 0) errors.investmentAmount = 'Amount cannot be negative.'
   }
   return errors
 }
@@ -96,7 +94,6 @@ export default function App() {
     } else {
       // Step 4 submitted with data — VC runs if exitValue is present
       const r = runValuation(form, { skipVC: false })
-      setVcSkippedByUser(r.vcSkipped)
       setResults(r)
       setDir(1)
       setStep(5)

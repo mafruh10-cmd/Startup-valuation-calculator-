@@ -90,9 +90,9 @@ export function Step1Basics({ data, onChange, errors }) {
           <strong className="font-semibold">
             {STAGES[data.stage]?.label} weighting:
           </strong>{' '}
-          {data.stage === 'preseed' && 'Berkus (65%) + Scorecard (35%). Qualitative factors dominate — no revenue data needed.'}
-          {data.stage === 'seed' && 'Berkus (25%) + Scorecard (40%) + Revenue Multiple (35%). A balanced mix with early financials.'}
-          {data.stage === 'series_a' && 'VC Method (25%) + Revenue Multiple (30%) + DCF (20%) + qualitative (25%). Financial metrics take the lead.'}
+          {data.stage === 'preseed' && 'Berkus (40%) + Scorecard (40%) + ARR Multiple (10%) + VC Perspective (10%). Qualitative factors dominate.'}
+          {data.stage === 'seed' && 'Berkus (20%) + Scorecard (30%) + ARR Multiple (30%) + VC Perspective (20%). A balanced mix with early financials.'}
+          {data.stage === 'series_a' && 'ARR Multiple (40%) + VC Perspective (35%) + Scorecard (15%) + Berkus (10%). Financial metrics take the lead.'}
         </InfoAlert>
       )}
     </div>
@@ -117,20 +117,26 @@ export function Step2Qualitative({ data, onChange }) {
     {
       name: 'market',
       label: 'Market Size & Opportunity',
-      tooltip: 'Rate total addressable market size and competitive dynamics. TAM > $1B with low existing competition scores 8–10.',
+      tooltip: 'Rate total addressable market size and growth potential. TAM > $1B with clear expansion path scores 8–10.',
       weight: { preseed: 20, seed: 20, series_a: 15 },
     },
     {
-      name: 'sales',
-      label: 'Traction & Sales',
-      tooltip: 'Rate evidence of product-market fit: LOIs, paying customers, MoM growth, NPS. Even early signals count at pre-seed.',
+      name: 'traction',
+      label: 'Traction',
+      tooltip: 'Rate evidence of product-market fit: paying customers, MoM growth, NPS, retention. Even early LOIs or waitlists count at pre-seed.',
       weight: { preseed: 15, seed: 20, series_a: 30 },
     },
     {
-      name: 'competition',
-      label: 'Competitive Position',
-      tooltip: 'Rate your defensibility vs. competitors: unique moats, switching costs, brand loyalty. First-mover with network effects scores highest.',
-      weight: { preseed: 10, seed: 10, series_a: 30 },
+      name: 'gtm',
+      label: 'Go-to-Market',
+      tooltip: 'Rate the clarity and scalability of your distribution strategy: channel partnerships, sales motion, SEO/PLG flywheel.',
+      weight: { preseed: 5, seed: 10, series_a: 20 },
+    },
+    {
+      name: 'competitiveAdvantage',
+      label: 'Competitive Advantage',
+      tooltip: 'Rate your defensibility vs. competitors: proprietary data, switching costs, network effects, brand loyalty.',
+      weight: { preseed: 5, seed: 10, series_a: 10 },
     },
   ]
 
@@ -141,7 +147,7 @@ export function Step2Qualitative({ data, onChange }) {
       <StepHeader
         step={2}
         title="The Scorecard"
-        description="Rate your startup on five qualitative dimensions (1 = lowest, 10 = exceptional). These drive both Berkus and Scorecard valuations."
+        description="Rate your startup on six qualitative dimensions (1 = lowest, 10 = exceptional). These drive both Berkus and Scorecard valuations."
       />
 
       <InfoAlert variant="info">
@@ -171,9 +177,9 @@ export function Step2Qualitative({ data, onChange }) {
 
       <div className="rounded-xl p-4 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20">
         <p className="text-xs font-semibold text-brand-600 dark:text-brand-400 mb-2">Scorecard Method Preview</p>
-        <div className="grid grid-cols-5 gap-2">
-          {['Team', 'Product', 'Market', 'Sales', 'Competition'].map((label, i) => {
-            const keys = ['team', 'product', 'market', 'sales', 'competition']
+        <div className="grid grid-cols-6 gap-2">
+          {['Team', 'Product', 'Market', 'Traction', 'GTM', 'Adv.'].map((label, i) => {
+            const keys = ['team', 'product', 'market', 'traction', 'gtm', 'competitiveAdvantage']
             const v = data[keys[i]] || 1
             const pct = ((v - 1) / 9) * 100
             return (
@@ -196,6 +202,8 @@ export function Step3Financial({ data, onChange, errors }) {
   const stage = data.stage || 'preseed'
   const isPreseed = stage === 'preseed'
 
+  const annualisedRevenue = data.arr > 0 ? data.arr : (data.mrr > 0 ? data.mrr * 12 : 0)
+
   return (
     <div className="space-y-5">
       <StepHeader
@@ -203,44 +211,62 @@ export function Step3Financial({ data, onChange, errors }) {
         title="The Hard Numbers"
         description={isPreseed
           ? "Financial data is optional at pre-seed, but adding it improves confidence."
-          : "These numbers directly power the Revenue Multiple and DCF valuations."
+          : "These numbers directly power the ARR Multiple valuation."
         }
       />
 
       {isPreseed && (
         <InfoAlert variant="warning">
-          You're pre-seed — financials are optional. Skip if you have no revenue yet. The Berkus and Scorecard methods don't require them.
+          You're pre-seed — financials are optional. Skip if you have no revenue yet. Berkus and Scorecard methods don't require them.
         </InfoAlert>
       )}
 
-      <NumberInput
-        label="Annual Recurring Revenue (ARR)"
-        tooltip="Total annualized revenue from all sources. For pre-revenue startups, enter 0. For monthly revenue, multiply by 12."
-        value={data.annualRevenue}
-        onChange={v => onChange('annualRevenue', v)}
-        prefix="$"
-        placeholder="0"
-        min={0}
-        step={1000}
-        helper={isPreseed ? 'Optional for pre-seed stage.' : 'Required for Revenue Multiple and DCF calculations.'}
-      />
-      {errors.annualRevenue && <p className="text-xs text-red-500 -mt-3">{errors.annualRevenue}</p>}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <NumberInput
+            label="ARR"
+            tooltip="Annual Recurring Revenue — your total annualized subscription/contract revenue. Takes precedence over MRR if both are entered."
+            value={data.arr}
+            onChange={v => onChange('arr', v)}
+            prefix="$"
+            placeholder="0"
+            min={0}
+            step={1000}
+            helper="Annual recurring revenue."
+          />
+          {errors.arr && <p className="text-xs text-red-500 mt-1">{errors.arr}</p>}
+        </div>
+        <div>
+          <NumberInput
+            label="MRR"
+            tooltip="Monthly Recurring Revenue — used only if ARR is 0. Will be annualised (× 12) for valuation calculations."
+            value={data.mrr}
+            onChange={v => onChange('mrr', v)}
+            prefix="$"
+            placeholder="0"
+            min={0}
+            step={100}
+            helper={data.arr > 0 ? 'ARR takes precedence.' : data.mrr > 0 ? `≈ $${((data.mrr * 12) / 1000).toFixed(0)}K annualised` : 'Used if ARR is 0.'}
+          />
+          {errors.mrr && <p className="text-xs text-red-500 mt-1">{errors.mrr}</p>}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <NumberInput
           label="Annual Growth Rate"
-          tooltip="Your Year-over-Year (YoY) revenue growth rate. If you're pre-revenue, estimate your first 12-month growth projection. Typical seed-stage range: 50–150%."
+          tooltip="Your Year-over-Year (YoY) revenue growth rate. Typical seed-stage range: 50–150%."
           value={data.growthRate}
           onChange={v => onChange('growthRate', v)}
           suffix="%"
           placeholder="0"
           min={0}
-          max={1000}
+          max={10000}
           helper="YoY revenue growth."
         />
         <NumberInput
           label="Gross Margin"
-          tooltip="(Revenue − COGS) / Revenue × 100. SaaS typically 70–85%; E-Commerce 20–40%; Marketplaces 60–80%."
+          tooltip="(Revenue − COGS) / Revenue × 100. SaaS: 70–85%; E-Commerce: 20–40%; Marketplaces: 60–80%."
           value={data.grossMargin}
           onChange={v => onChange('grossMargin', v)}
           suffix="%"
@@ -251,19 +277,19 @@ export function Step3Financial({ data, onChange, errors }) {
         />
       </div>
 
-      {!isPreseed && data.annualRevenue > 0 && data.industry && (
+      {annualisedRevenue > 0 && data.industry && (
         <div className="rounded-xl p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900">
-          <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">Revenue Multiple Preview</p>
+          <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">ARR Multiple Preview</p>
           <p className="text-sm text-emerald-800 dark:text-emerald-300">
-            ${(data.annualRevenue / 1e6).toFixed(2)}M ARR × {INDUSTRY_MULTIPLES[data.industry]?.multiple ?? 4}× ({INDUSTRY_MULTIPLES[data.industry]?.label}) ={' '}
-            <strong>${((data.annualRevenue * (INDUSTRY_MULTIPLES[data.industry]?.multiple ?? 4)) / 1e6).toFixed(2)}M</strong>
+            ${(annualisedRevenue / 1e6).toFixed(2)}M {data.arr > 0 ? 'ARR' : 'MRR × 12'} × {INDUSTRY_MULTIPLES[data.industry]?.multiple ?? 5}× ({INDUSTRY_MULTIPLES[data.industry]?.label}) ={' '}
+            <strong>${((annualisedRevenue * (INDUSTRY_MULTIPLES[data.industry]?.multiple ?? 5)) / 1e6).toFixed(2)}M</strong>
           </p>
         </div>
       )}
 
       {isPreseed && (
         <InfoAlert variant="info">
-          At pre-seed, the Berkus and Scorecard methods from Step 2 already produce a valuation range. Financial inputs improve accuracy once you have early revenue.
+          At pre-seed, Berkus and Scorecard from Step 2 already produce a valuation. Financial inputs improve accuracy once you have early revenue.
         </InfoAlert>
       )}
     </div>
@@ -272,70 +298,58 @@ export function Step3Financial({ data, onChange, errors }) {
 
 // ─── Step 4: Investment ───────────────────────────────────────────────────────
 export function Step4Investment({ data, onChange, errors }) {
-  const stage = data.stage || 'preseed'
-  const isSeriesA = stage === 'series_a'
-
   return (
     <div className="space-y-5">
       <StepHeader
         step={4}
-        title="Capital & Exit (Optional)"
-        description="This step improves the Venture Capital (VC) Method estimate. You can skip it and still receive a valuation using the other methods."
+        title="Investor Assumptions (Optional)"
+        description="These inputs power the VC Perspective method. Skip this step and we'll auto-estimate assumptions from your stage and industry."
       />
 
-      <NumberInput
-        label="Investment Amount Sought"
-        tooltip="How much are you raising in this round? This is used to calculate post-money valuation and dilution."
-        value={data.investmentAmount}
-        onChange={v => onChange('investmentAmount', v)}
-        prefix="$"
-        placeholder="500,000"
-        min={0}
-        step={10000}
-        helper="The amount you plan to raise in this round."
-      />
-      {errors.investmentAmount && <p className="text-xs text-red-500 -mt-3">{errors.investmentAmount}</p>}
+      <InfoAlert variant="info">
+        If you leave this blank, we'll still calculate a VC Perspective estimate using stage benchmarks — just less personalised.
+      </InfoAlert>
 
       <NumberInput
         label="Expected Exit / Acquisition Value"
-        tooltip="Your projected company value at exit (IPO or acquisition). For a conservative estimate, use 5–10× your blended valuation. Series A companies typically target $100M–$1B exits."
+        tooltip="Your projected company value at exit (IPO or acquisition). Seed-stage companies typically target $50M–$500M; Series A+ typically $100M–$1B+."
         value={data.exitValue}
         onChange={v => onChange('exitValue', v)}
         prefix="$"
-        placeholder="10,000,000"
+        placeholder="50,000,000"
         min={0}
-        step={100000}
-        helper={isSeriesA ? 'Required for VC Method.' : 'Optional — used in VC Method if stage is Series A+.'}
+        step={1000000}
+        helper="Expected IPO or acquisition value."
       />
 
       <div className="grid grid-cols-2 gap-4">
         <NumberInput
-          label="Discount Rate"
-          tooltip="The return rate VCs expect. Early-stage VCs typically require 30–50% IRR to compensate for risk. Series A+ averages 25–35%."
-          value={data.discountRate}
-          onChange={v => onChange('discountRate', v)}
+          label="VC Required Return"
+          tooltip="The annualised return rate VCs expect (IRR). Pre-seed/seed VCs typically require 30–50%; Series A: 25–35%."
+          value={data.returnRate}
+          onChange={v => onChange('returnRate', v)}
           suffix="%"
           placeholder="30"
           min={0}
           max={100}
-          helper="Typical VC required return: 25–40%."
+          helper="Typical VC required IRR: 25–50%."
         />
         <NumberInput
           label="Years to Exit"
-          tooltip="Expected holding period before exit. Typical VC hold is 5–7 years. Shorter periods increase the present value of the exit."
-          value={data.years}
-          onChange={v => onChange('years', v)}
+          tooltip="Expected holding period before exit. Typical VC hold is 5–7 years. Shorter periods increase present value."
+          value={data.yearsToExit}
+          onChange={v => onChange('yearsToExit', v)}
           suffix="yrs"
           placeholder="5"
           min={1}
           max={15}
-          helper="Expected years until exit."
+          helper="Typical range: 5–7 years."
         />
       </div>
 
       <NumberInput
         label="Investor Dilution"
-        tooltip="The ownership percentage investors will receive in this round. Typical seed dilution: 15–25%. Series A: 20–30%."
+        tooltip="Equity percentage investors receive in this round. Typical seed: 15–25%. Series A: 20–30%."
         value={data.dilution}
         onChange={v => onChange('dilution', v)}
         suffix="%"
@@ -345,24 +359,10 @@ export function Step4Investment({ data, onChange, errors }) {
         helper="Equity offered to investors in this round."
       />
 
-      {data.investmentAmount > 0 && data.exitValue > 0 && (
+      {data.exitValue > 0 && (
         <div className="rounded-xl p-4 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 space-y-2">
-          <p className="text-xs font-semibold text-brand-600 dark:text-brand-400">Round Summary</p>
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <p className="text-gray-500 dark:text-gray-400">Raising</p>
-              <p className="font-bold text-gray-900 dark:text-white">
-                ${(data.investmentAmount / 1e6).toFixed(2)}M
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 dark:text-gray-400">Implied Pre-Money</p>
-              <p className="font-bold text-gray-900 dark:text-white">
-                ${data.dilution > 0
-                  ? ((data.investmentAmount / (data.dilution / 100)) - data.investmentAmount).toLocaleString('en-US', { maximumFractionDigits: 0 })
-                  : 'N/A'}
-              </p>
-            </div>
+          <p className="text-xs font-semibold text-brand-600 dark:text-brand-400">VC Perspective Preview</p>
+          <div className="grid grid-cols-3 gap-3 text-xs">
             <div>
               <p className="text-gray-500 dark:text-gray-400">Target Exit</p>
               <p className="font-bold text-gray-900 dark:text-white">
@@ -370,12 +370,12 @@ export function Step4Investment({ data, onChange, errors }) {
               </p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-gray-400">Expected Return</p>
-              <p className="font-bold text-emerald-600 dark:text-emerald-400">
-                {data.investmentAmount > 0
-                  ? `${((data.exitValue * (data.dilution / 100)) / data.investmentAmount).toFixed(1)}×`
-                  : 'N/A'}
-              </p>
+              <p className="text-gray-500 dark:text-gray-400">Required Return</p>
+              <p className="font-bold text-gray-900 dark:text-white">{data.returnRate || 30}% IRR</p>
+            </div>
+            <div>
+              <p className="text-gray-500 dark:text-gray-400">Dilution</p>
+              <p className="font-bold text-gray-900 dark:text-white">{data.dilution || 20}%</p>
             </div>
           </div>
         </div>
