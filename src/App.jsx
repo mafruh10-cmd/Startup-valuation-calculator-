@@ -10,7 +10,7 @@ import {
   Step3Financial,
   Step4Investment,
 } from './components/WizardSteps.jsx'
-import { PartialReport, LeadCapture, FullResults } from './components/Results.jsx'
+import { ResultsPreview, LeadCaptureModal, FullResults } from './components/Results.jsx'
 
 // ─── Default form state ────────────────────────────────────────────────────────
 const DEFAULT_FORM = {
@@ -183,8 +183,8 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* Results header */}
-        {step >= 5 && (
+        {/* Results header — only for full results (step 6) */}
+        {step === 6 && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -277,12 +277,26 @@ export default function App() {
             </AnimatedStep>
           )}
 
-          {/* Step 5: Partial results + lead capture */}
+          {/* Step 5: Blurred results preview + lead capture modal */}
           {step === 5 && results && (
             <AnimatedStep key="partial" stepKey="partial" direction={direction}>
-              <div className="space-y-6">
-                <PartialReport results={results} inputs={form} onAddVCAssumptions={handleAddVCAssumptions} />
-                <LeadCapture onSubmit={handleLeadSubmit} />
+              {/* Blurred background — not interactive */}
+              <div
+                className="pointer-events-none select-none"
+                style={{ filter: 'blur(5px)', opacity: 0.6 }}
+                aria-hidden="true"
+              >
+                <ResultsPreview results={results} inputs={form} />
+              </div>
+
+              {/* Fixed overlay + modal */}
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                   style={{ backdropFilter: 'blur(12px)', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                <LeadCaptureModal
+                  onSubmit={handleLeadSubmit}
+                  results={results}
+                  inputs={form}
+                />
               </div>
             </AnimatedStep>
           )}

@@ -5,7 +5,7 @@ import {
   CheckCircle, Star, RefreshCw, FileText, Download, PlusCircle,
 } from 'lucide-react'
 import { INDUSTRY_MULTIPLES, STAGES, formatCurrency, formatCurrencyFull } from '../lib/valuationEngine.js'
-import { ConfidenceGauge, ValuationCard } from './ui/shared.jsx'
+import { ConfidenceGauge } from './ui/shared.jsx'
 
 // ─── Startup logo with Clearbit + initial fallback ────────────────────────────
 function StartupLogo({ domain, name, size = 28 }) {
@@ -260,12 +260,13 @@ function MethodDetailPanel({ methodKey, value, inputs, vcSkipped, onAddVCAssumpt
   )
 }
 
-// ─── Partial Report (shown before email capture) ──────────────────────────────
-export function PartialReport({ results, inputs, onAddVCAssumptions }) {
-  const { blended, berkus, scorecard, vc, revenueMultiple, dcf, confidence, vcSkipped } = results
+// ─── Results Preview (blurred background behind the modal) ───────────────────
+export function ResultsPreview({ results, inputs }) {
+  const { blended, berkus, scorecard, vc, revenueMultiple, dcf, confidence } = results
   const stage = inputs.stage || 'preseed'
 
-  const applicableMethods = [
+  const methods = [
+    { key: 'blended',         value: blended },
     { key: 'berkus',          value: berkus },
     { key: 'scorecard',       value: scorecard },
     { key: 'vc',              value: vc },
@@ -274,25 +275,17 @@ export function PartialReport({ results, inputs, onAddVCAssumptions }) {
   ].filter(m => m.value > 0)
 
   return (
-    <div className="space-y-6">
-      {/* Hero valuation */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-purple-700 p-6 text-white shadow-xl shadow-brand-500/20"
-      >
+    <div className="space-y-5">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-purple-700 p-6 text-white shadow-xl">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_70%)]" />
         <div className="relative z-10">
           <p className="text-brand-200 text-sm font-medium mb-1">
             {inputs.startupName || 'Your Startup'} · {STAGES[stage]?.label}
           </p>
-          <p className="text-sm text-brand-200 mb-4">Blended Valuation Estimate</p>
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex items-end justify-between gap-4 mt-3">
             <div>
-              <p className="text-4xl sm:text-5xl font-black tracking-tight">
-                {formatCurrency(blended)}
-              </p>
+              <p className="text-4xl font-black">{formatCurrency(blended)}</p>
               <p className="text-brand-200 text-xs mt-1">
                 Range: {formatCurrency(blended * 0.75)} – {formatCurrency(blended * 1.35)}
               </p>
@@ -300,85 +293,69 @@ export function PartialReport({ results, inputs, onAddVCAssumptions }) {
             <ConfidenceGauge score={confidence} />
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Method summary cards */}
+      {/* Method cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {applicableMethods.map(({ key, value }, i) => {
+        {methods.map(({ key, value }) => {
           const meta = METHOD_META[key]
+          const c = colorMap[meta.color]
           const Icon = meta.icon
           return (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-            >
-              <ValuationCard label={meta.label} value={formatCurrency(value)} icon={Icon} />
-            </motion.div>
+            <div key={key} className="rounded-xl p-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-2 ${c.icon}`}>
+                <Icon size={14} className={c.text} />
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{meta.shortLabel}</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(value)}</p>
+            </div>
           )
         })}
       </div>
 
-      {/* Methodology note */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-xs text-center text-gray-400 dark:text-gray-500 px-2"
-      >
-        Your valuation was calculated using the methods supported by the data you provided.
-      </motion.p>
-
-      {/* Add VC assumptions prompt */}
-      {vcSkipped && onAddVCAssumptions && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="rounded-xl p-4 border border-dashed border-brand-200 dark:border-brand-700
-                     bg-brand-50 dark:bg-brand-500/10 flex items-center justify-between gap-3"
-        >
-          <div>
-            <p className="text-sm font-medium text-brand-700 dark:text-brand-300">Want a VC Method estimate?</p>
-            <p className="text-xs text-brand-600/70 dark:text-brand-400/70 mt-0.5">
-              Add your exit value and capital assumptions to unlock this method.
-            </p>
-          </div>
-          <button onClick={onAddVCAssumptions} className="btn-secondary flex-shrink-0 text-xs px-3 py-2">
-            <PlusCircle size={13} />
-            Add VC assumptions
-          </button>
-        </motion.div>
-      )}
-
-      {/* Lock teaser */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.65 }}
-        className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-6 text-center space-y-3"
-      >
-        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto">
-          <Lock size={18} className="text-gray-400" />
+      {/* Fake detail panel placeholder */}
+      <div className="rounded-2xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 space-y-3">
+        <div className="h-4 w-2/3 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="h-3 w-full rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="h-3 w-5/6 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="h-3 w-4/6 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="mt-4 space-y-2">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
+              <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="h-2.5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+            </div>
+          ))}
         </div>
-        <div>
-          <p className="font-semibold text-gray-900 dark:text-white text-sm">Full Valuation Report</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto leading-relaxed">
-            You have {applicableMethods.length} valuations based on the methods most relevant to your startup's stage.
-            To unlock the full valuation document and receive a detailed breakdown, please enter your name and email address.
-          </p>
+      </div>
+
+      {/* Inputs summary placeholder */}
+      <div className="rounded-xl p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+        <div className="h-3.5 w-1/3 rounded bg-gray-200 dark:bg-gray-700 mb-3" />
+        <div className="grid grid-cols-3 gap-3">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="space-y-1">
+              <div className="h-2.5 w-full rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+            </div>
+          ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
 
-// ─── Lead Capture Form ────────────────────────────────────────────────────────
-export function LeadCapture({ onSubmit }) {
+// ─── Lead Capture Modal (shown as overlay on top of blurred preview) ──────────
+export function LeadCaptureModal({ onSubmit, results, inputs }) {
   const [form, setForm] = useState({ name: '', email: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+
+  const { blended, confidence } = results
+  const startupName = inputs.startupName
 
   function validate() {
     const e = {}
@@ -399,69 +376,87 @@ export function LeadCapture({ onSubmit }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 shadow-sm space-y-5"
+      initial={{ opacity: 0, scale: 0.94, y: 16 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+      className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+      onClick={e => e.stopPropagation()}
     >
-      <div className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center mx-auto mb-3">
-          <Download size={22} className="text-brand-500" />
+      {/* Gradient header strip */}
+      <div className="bg-gradient-to-br from-brand-500 via-brand-600 to-purple-700 px-6 pt-6 pb-8 text-white text-center relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_70%)]" />
+        <div className="relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-3">
+            <TrendingUp size={22} className="text-white" />
+          </div>
+          <h3 className="text-lg font-bold">Your valuation is ready</h3>
+          {blended > 0 && (
+            <p className="text-3xl font-black mt-1 tracking-tight">{formatCurrency(blended)}</p>
+          )}
+          <p className="text-brand-200 text-xs mt-1">
+            {confidence}% confidence · {STAGES[inputs.stage]?.label}
+          </p>
         </div>
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Unlock the Full Report</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto leading-relaxed">
-          Receive a detailed breakdown of every valuation method, assumptions, and investor-ready talking points.
-        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3" noValidate>
-        <div>
-          <label className="label">Full Name</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(er => ({ ...er, name: '' })) }}
-            placeholder="Jane Smith"
-            className={`input-field ${errors.name ? 'border-red-400 focus:ring-red-400' : ''}`}
-            autoComplete="name"
-          />
-          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+      {/* Form body — pulled up to overlap the gradient strip */}
+      <div className="px-6 pb-6 -mt-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl pt-4 space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+            Enter your details to unlock {startupName ? <strong>{startupName}'s</strong> : 'your'} full valuation breakdown and investor-ready report.
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+            <div>
+              <label className="label">Full Name</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(er => ({ ...er, name: '' })) }}
+                placeholder="Jane Smith"
+                className={`input-field ${errors.name ? 'border-red-400 focus:ring-red-400' : ''}`}
+                autoComplete="name"
+                autoFocus
+              />
+              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+            </div>
+
+            <div>
+              <label className="label">Email Address</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setErrors(er => ({ ...er, email: '' })) }}
+                placeholder="jane@startup.com"
+                className={`input-field ${errors.email ? 'border-red-400 focus:ring-red-400' : ''}`}
+                autoComplete="email"
+              />
+              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-primary w-full">
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Unlocking…
+                </>
+              ) : (
+                <>
+                  <Download size={15} />
+                  Unlock full valuation report
+                </>
+              )}
+            </button>
+
+            <p className="text-xs text-center text-gray-400 dark:text-gray-600">
+              No spam. Used only to send your report.
+            </p>
+          </form>
         </div>
-
-        <div>
-          <label className="label">Email Address</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setErrors(er => ({ ...er, email: '' })) }}
-            placeholder="jane@startup.com"
-            className={`input-field ${errors.email ? 'border-red-400 focus:ring-red-400' : ''}`}
-            autoComplete="email"
-          />
-          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-        </div>
-
-        <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
-          {loading ? (
-            <>
-              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Unlocking…
-            </>
-          ) : (
-            <>
-              <Download size={16} />
-              Unlock full valuation document
-            </>
-          )}
-        </button>
-
-        <p className="text-xs text-center text-gray-400 dark:text-gray-600">
-          No spam. Your data is used only to send you the report.
-        </p>
-      </form>
+      </div>
     </motion.div>
   )
 }
