@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { TrendingUp } from 'lucide-react'
 import { runValuation } from './lib/valuationEngine.js'
-import { DarkModeToggle, StepProgress, ConfidenceGauge } from './components/ui/shared.jsx'
+import { StepProgress, ConfidenceGauge } from './components/ui/shared.jsx'
+import logo from './assets/logo.png'
 import {
   AnimatedStep,
   Step1Basics,
@@ -54,14 +54,6 @@ function validateStep(step, data) {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sv-darkmode') === 'true' ||
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    }
-    return false
-  })
-
   const [step, setStep]       = useState(1)       // 1–4 wizard, 5 = partial results, 6 = full results
   const [direction, setDir]   = useState(1)
   const [form, setForm]       = useState(DEFAULT_FORM)
@@ -69,12 +61,6 @@ export default function App() {
   const [results, setResults] = useState(null)
   const [leadData, setLead]   = useState(null)
   const [vcSkippedByUser, setVcSkippedByUser] = useState(false)
-
-  // Persist dark mode
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode)
-    localStorage.setItem('sv-darkmode', darkMode)
-  }, [darkMode])
 
   // Live confidence score (always uses current vcSkippedByUser flag)
   const liveResults = form.stage ? runValuation(form, { skipVC: vcSkippedByUser }) : null
@@ -141,30 +127,16 @@ export default function App() {
   const isWizard = step >= 1 && step <= 4
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300`}>
+    <div className="min-h-screen">
       {/* ── Top Nav ── */}
-      <header className="sticky top-0 z-40 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 glass">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center shadow-sm shadow-brand-500/30">
-              <TrendingUp size={16} className="text-white" />
-            </div>
-            <span className="font-bold text-gray-900 dark:text-white text-sm tracking-tight">
-              ValuatorAI
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Live confidence badge — only visible in wizard */}
-            {isWizard && liveResults && (
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                {liveResults.confidence}% complete
-              </div>
-            )}
-            <DarkModeToggle darkMode={darkMode} onToggle={() => setDarkMode(d => !d)} />
-          </div>
+      <header style={{background:'#fff',borderBottom:'1px solid #E0E1E4',height:'60px',position:'sticky',top:0,zIndex:40,display:'flex',alignItems:'center',padding:'0 32px',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
+          <img src={logo} alt="Saasfactor" style={{height:'28px',display:'block'}} />
+          <span style={{fontSize:'10px',fontWeight:700,letterSpacing:'.10em',textTransform:'uppercase',color:'#1AC8D4',background:'rgba(26,200,212,.10)',padding:'3px 10px',borderRadius:'20px',border:'1px solid rgba(26,200,212,.18)'}}>
+            Valuation Tool
+          </span>
         </div>
+        <span style={{fontSize:'12px',color:'#AAAAAA',letterSpacing:'.04em'}}>saasfactor.co</span>
       </header>
 
       {/* ── Main ── */}
