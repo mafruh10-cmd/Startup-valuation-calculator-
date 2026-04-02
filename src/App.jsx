@@ -142,15 +142,12 @@ export default function App() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center">
             Free SaaS Valuation Calculator | Saasfactor
           </h1>
-          <p className="text-gray-500 text-center mt-2 text-sm">
-            📖 12-minute read | Updated: April 2026 | Source: Saasfactor.co
-          </p>
         </div>
       </section>
 
       {/* ── Calculator Section (Centered, Full Width) ── */}
       <section className="bg-white py-8">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="mx-auto px-4" style={{maxWidth: '44rem'}}>
           {/* Progress bar — wizard only */}
           {isWizard && (
             <motion.div
@@ -308,21 +305,29 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── Blog Content + CTA Widget (Two Columns) ── */}
+      {/* ── Blog Content + CTA Widget (Centered Blog with Right CTA) ── */}
       <section className="border-t border-gray-200 dark:border-gray-800 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Left Column - Blog Post */}
-            <div className="lg:col-span-8">
-              <BlogPost />
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left spacer */}
+            <div className="hidden lg:block lg:col-span-1" />
+            
+            {/* Blog - Centered */}
+            <div className="lg:col-span-7">
+              <div className="max-w-2xl mx-auto">
+                <BlogPost />
+              </div>
             </div>
             
-            {/* Right Column - Sticky CTA Widget */}
-            <div className="lg:col-span-4">
+            {/* CTA Widget - Right side */}
+            <div className="lg:col-span-3">
               <div className="lg:sticky lg:top-24">
                 <SidebarWidget />
               </div>
             </div>
+            
+            {/* Right spacer */}
+            <div className="hidden lg:block lg:col-span-1" />
           </div>
         </div>
       </section>

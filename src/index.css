@@ -32,7 +32,9 @@
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm;
+    @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700;
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.15), 
+                0 8px 20px -4px rgba(0, 0, 0, 0.1);
   }
 
   .input-field {
