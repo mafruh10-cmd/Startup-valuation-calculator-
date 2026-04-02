@@ -7,13 +7,169 @@
     <meta http-equiv="Expires" content="0">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Startup Valuation Calculator</title>
+    <title>Startup Valuation Calculator | Saasfactor</title>
+    <meta name="description" content="Free SaaS Valuation Calculator. Get an instant valuation estimate for your startup using four institutional-grade methods: Berkus, Scorecard, ARR Multiple, and VC Perspective.">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #EBEBEC; }
+      #static-blog { display: none; }
+      .no-js #static-blog { display: block; }
+      .no-js #root { display: none; }
+    </style>
   </head>
   <body>
+    <!-- React App Root -->
     <div id="root"></div>
+    
+    <!-- Static Blog Content - Visible when JavaScript is disabled -->
+    <noscript>
+      <style>#static-blog { display: block !important; }</style>
+    </noscript>
+    
+    <article id="static-blog" style="font-family: Inter, system-ui, sans-serif; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #fff;">
+      <h1 style="font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 16px;">Free SaaS Valuation Calculator | Saasfactor</h1>
+      
+      <div style="color: #6b7280; font-size: 14px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e5e7eb;">
+        📖 12-minute read | Updated: April 2026 | Source: Saasfactor.co
+      </div>
+
+      <div style="background: #e6fbfc; border: 1px solid #b3f2f5; border-radius: 12px; padding: 20px; margin-bottom: 32px;">
+        <h2 style="font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 16px;">🔑 Key Takeaways</h2>
+        <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
+          <li>SaaS valuation is a weighted blend of up to four institutional-grade methods, calibrated by your funding stage</li>
+          <li>In 2026, private SaaS companies typically trade at 3x–7x ARR; AI SaaS commands up to 15x revenue multiples</li>
+          <li>The Berkus and Scorecard methods work for pre-revenue startups — no ARR required at Pre-Seed</li>
+          <li>ARR growth rate, gross margin, and Net Revenue Retention are the top three levers that move your multiple</li>
+          <li>A 12-month focus on reducing churn and improving expansion revenue can add 1x–2x to your exit multiple</li>
+          <li>Saasfactor's free calculator runs all four methods instantly with a live confidence score and a blended valuation</li>
+          <li>The global SaaS market is projected to hit $390 billion in 2026 — knowing your number is no longer optional</li>
+        </ul>
+      </div>
+
+      <div style="color: #374151; line-height: 1.7; font-size: 16px;">
+        <p style="margin-bottom: 16px;">Here's a question I hear from founders almost every week: "What's my SaaS worth?" Most of them don't have an answer. Not a rough one. Not even a range.</p>
+        
+        <p style="margin-bottom: 16px;">I've watched founders walk into investor meetings citing a number they pulled from a Twitter thread or a three-year-old blog post. That doesn't work anymore. Not in 2026, when the market has rewired itself around fundamentals — and expects you to know yours.</p>
+        
+        <p style="margin-bottom: 16px;">The global SaaS market is projected to hit $390 billion this year, growing at a CAGR of 18.7% through 2030. There's serious capital in this space. But the era of growth-at-any-cost multiples ended in 2022, and it's not coming back. Investors want substance. You need to show up with numbers.</p>
+        
+        <p style="margin-bottom: 24px;">That's what the Saasfactor SaaS Valuation Calculator was built for. Not another ARR-times-a-number shortcut. A real, multi-method tool modeled on how investors actually think.</p>
+      </div>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">What Is SaaS Valuation?</h2>
+      
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">SaaS valuation is the process of estimating what your software business is worth to an investor, acquirer, or the market — right now. It's not your revenue. It's not your ARR. It's a forward-looking number that blends current financial performance with growth trajectory, market position, and business quality.</p>
+      
+      <div style="background: #f9fafb; border-left: 4px solid #1AC8D4; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0;">
+        <p style="margin: 0; color: #374151; font-style: italic;"><strong>Definition:</strong> SaaS business valuation is the systematic estimation of a company's enterprise value using a combination of financial metrics (ARR, growth rate, gross margin) and qualitative signals (team strength, product defensibility, market size).</p>
+      </div>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">How Does Our SaaS Valuation Calculator Work?</h2>
+      
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">The Saasfactor calculator runs four proven valuation methods simultaneously — the same frameworks used by angel investors, VCs, and M&A advisors:</p>
+      
+      <ol style="color: #374151; line-height: 1.7; margin-bottom: 24px; padding-left: 24px;">
+        <li style="margin-bottom: 12px;"><strong>Berkus Method</strong> — Scores five factors (Team, Product, Market, Traction, GTM) at up to $500K each. Built for pre-revenue startups.</li>
+        <li style="margin-bottom: 12px;"><strong>Scorecard Method</strong> — Benchmarks your startup against a $5M regional baseline using six weighted qualitative factors.</li>
+        <li style="margin-bottom: 12px;"><strong>ARR Multiple Method</strong> — The investor-standard revenue multiple (15x for AI SaaS down to 4x for E-Commerce Software).</li>
+        <li><strong>VC Perspective Method</strong> — Back-calculates present value from a future exit using investor assumptions.</li>
+      </ol>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">What Factors Influence SaaS Valuation</h2>
+      
+      <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 24px; margin-bottom: 12px;">Revenue (ARR / MRR)</h3>
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">Recurring revenue is the foundation of every SaaS valuation. ARR (Annual Recurring Revenue) captures your committed, contracted revenue over a 12-month period. MRR is auto-annualized (×12) if no ARR is entered.</p>
+      
+      <div style="display: flex; align-items: start; gap: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <span style="font-size: 20px;">📊</span>
+        <p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>Stat:</strong> As of early 2026, private SaaS companies in the lower middle market ($5M–$50M enterprise value) trade at 3x–7x ARR, with a median around 4.5x.</p>
+      </div>
+
+      <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 24px; margin-bottom: 12px;">Growth Rate</h3>
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">High growth = higher multiples. Companies growing above 40% annually consistently land in the 8x–10x ARR range. However, growth alone no longer commands a premium — the market now rewards growth plus efficiency together.</p>
+
+      <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 24px; margin-bottom: 12px;">Churn Rate</h3>
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">Churn is a valuation killer. NRR (Net Revenue Retention) above 110% consistently unlocks premium conversations with acquirers. A 12-month focus on reducing churn and improving expansion revenue can add 1x–2x to your exit multiple.</p>
+
+      <h3 style="font-size: 20px; font-weight: 600; color: #111827; margin-top: 24px; margin-bottom: 12px;">Profitability & Margins</h3>
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">The Rule of 40 (growth rate + EBITDA margin) is the dominant benchmark. Above 40 signals a healthy business. Above 50 commands a premium.</p>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">SaaS Valuation Multiples Explained</h2>
+      
+      <p style="color: #374151; line-height: 1.7; margin-bottom: 16px;">In 2026, private SaaS companies typically trade at 3x–7x ARR. The Saasfactor calculator uses these industry multiples:</p>
+
+      <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;">
+        <thead>
+          <tr style="background: #f3f4f6;">
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 600;">Industry</th>
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 600;">Revenue Multiple</th>
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 600;">Notes</th>
+          </tr>
+        </thead>
+        <tbody style="color: #374151;">
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; font-weight: 500;">AI SaaS</td>
+            <td style="padding: 12px;">15x</td>
+            <td style="padding: 12px;">Highest premium in market</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+            <td style="padding: 12px; font-weight: 500;">SaaS (General)</td>
+            <td style="padding: 12px;">8x</td>
+            <td style="padding: 12px;">Investor-standard benchmark</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; font-weight: 500;">Fintech</td>
+            <td style="padding: 12px;">6x</td>
+            <td style="padding: 12px;">Regulation = discount</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+            <td style="padding: 12px; font-weight: 500;">E-Commerce Software</td>
+            <td style="padding: 12px;">4x</td>
+            <td style="padding: 12px;">Margin-sensitive buyers</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">How to Increase Your SaaS Valuation</h2>
+      
+      <ol style="color: #374151; line-height: 1.7; padding-left: 24px;">
+        <li style="margin-bottom: 12px;"><strong>Improve retention (reduce churn)</strong> — NRR above 110% is the single highest-ROI investment before any exit or fundraise.</li>
+        <li style="margin-bottom: 12px;"><strong>Increase growth rate sustainably</strong> — Companies above 40% annual growth frequently land in the 8x–10x ARR range.</li>
+        <li style="margin-bottom: 12px;"><strong>Optimize pricing strategy</strong> — Most SaaS companies are underpriced by 15–30%.</li>
+        <li style="margin-bottom: 12px;"><strong>Improve unit economics</strong> — LTV:CAC above 3:1 signals a scalable growth engine.</li>
+        <li><strong>Build a strong competitive moat</strong> — Deep product integrations, proprietary data, or network effects translate into premium multiples.</li>
+      </ol>
+
+      <h2 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 32px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb;">FAQ</h2>
+      
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 8px;">What is a good SaaS valuation multiple?</h3>
+        <p style="color: #374151; line-height: 1.6; margin: 0;">In 2026, private SaaS companies typically trade at 3x–7x ARR. High-growth companies (40%+ YoY) with NRR above 110% can reach 8x–10x. AI SaaS commands up to 15x revenue.</p>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 8px;">Can early-stage startups use it?</h3>
+        <p style="color: #374151; line-height: 1.6; margin: 0;">Yes. The Berkus and Scorecard methods don't require any financial data. At Pre-Seed, these two methods together carry 80% of the blended weight.</p>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 8px;">What is ARR vs revenue?</h3>
+        <p style="color: #374151; line-height: 1.6; margin: 0;">ARR (Annual Recurring Revenue) counts only predictable, subscription-based revenue. Total revenue includes non-recurring items, which get discounted heavily in SaaS valuations.</p>
+      </div>
+
+      <div style="background: linear-gradient(135deg, #1AC8D4 0%, #14a0aa 100%); border-radius: 12px; padding: 24px; margin-top: 32px; text-align: center; color: white;">
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">Know Your Number Before Someone Else Defines It</h2>
+        <p style="margin-bottom: 16px; opacity: 0.9;">Enable JavaScript to use the interactive calculator, or learn more about SaaS valuation above.</p>
+      </div>
+
+      <footer style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af;">
+        <strong>Sources:</strong> SaaS Capital Index (2025–2026) · Aventis Advisors SaaS Valuation Multiples (Jan 2026) · Windsor Drake SaaS Multiples Report (Feb 2026) · FE International SaaS Valuation Guide (Jan 2026) · Axial SaaS M&A Insights (2026) · Livmo Lower Middle Market SaaS Transactions (2026)
+      </footer>
+    </article>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
