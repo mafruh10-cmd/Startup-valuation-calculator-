@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/tools/startup-valuation-calculator/',
   test: {
     environment: 'node',
     globals: true,
