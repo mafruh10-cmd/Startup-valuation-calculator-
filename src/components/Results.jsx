@@ -338,18 +338,11 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
 
   async function handleSubmit(ev) {
     ev.preventDefault()
-    console.log('DEBUG Modal: Form submitted')
     const e = validate()
-    if (Object.keys(e).length) { 
-      console.log('DEBUG Modal: Validation errors', e)
-      setErrors(e); 
-      return 
-    }
+    if (Object.keys(e).length) { setErrors(e); return }
     setLoading(true)
     await new Promise(r => setTimeout(r, 900))
-    console.log('DEBUG Modal: Calling onSubmit with', form)
     onSubmit(form)
-    console.log('DEBUG Modal: onSubmit called')
   }
 
   return (
