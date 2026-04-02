@@ -79,10 +79,13 @@ export default function App() {
       setDir(1)
       setStep(s => s + 1)
     } else {
+      console.log('DEBUG: Calculating results...')
       const r = runValuation(form, { skipVC: false })
+      console.log('DEBUG: Results calculated:', !!r)
       setResults(r)
       setDir(1)
       setStep(leadData ? 6 : 5)
+      console.log('DEBUG: Step set to', leadData ? 6 : 5)
     }
   }
 
@@ -106,7 +109,9 @@ export default function App() {
   }
 
   function handleLeadSubmit(lead) {
+    console.log('DEBUG: Lead submitted:', lead)
     setLead(lead)
+    console.log('DEBUG: Step changing to 6')
     setStep(6)
   }
 
@@ -122,6 +127,9 @@ export default function App() {
 
   const STEP_LABELS = ['Basics', 'Scorecard', 'Financials', 'Capital']
   const isWizard = step >= 1 && step <= 4
+  
+  // DEBUG: Log current state
+  console.log('DEBUG: State =', { step, hasResults: !!results, hasLeadData: !!leadData })
 
   return (
     <div className="min-h-screen">
@@ -276,16 +284,23 @@ export default function App() {
             )}
 
             {/* Step 6: Full results */}
-            {step === 6 && results && leadData && (
-              <AnimatedStep key="full" stepKey="full" direction={direction}>
-                <FullResults
-                  results={results}
-                  inputs={form}
-                  leadData={leadData}
-                  onReset={handleReset}
-                  onAddVCAssumptions={handleAddVCAssumptions}
-                />
-              </AnimatedStep>
+            {console.log('DEBUG: Step 6 check =', { stepIs6: step === 6, hasResults: !!results, hasLeadData: !!leadData })}
+            {step === 6 && (
+              <>
+                {!results && <div className="p-8 text-center text-red-500">DEBUG: results is null</div>}
+                {!leadData && <div className="p-8 text-center text-red-500">DEBUG: leadData is null</div>}
+                {results && leadData && (
+                  <AnimatedStep key="full" stepKey="full" direction={direction}>
+                    <FullResults
+                      results={results}
+                      inputs={form}
+                      leadData={leadData}
+                      onReset={handleReset}
+                      onAddVCAssumptions={handleAddVCAssumptions}
+                    />
+                  </AnimatedStep>
+                )}
+              </>
             )}
           </AnimatePresence>
 
