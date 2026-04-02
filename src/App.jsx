@@ -11,6 +11,8 @@ import {
   Step4Investment,
 } from './components/WizardSteps.jsx'
 import { ResultsPreview, LeadCaptureModal, FullResults } from './components/Results.jsx'
+import BlogPost from './components/BlogPost.jsx'
+import SidebarWidget from './components/SidebarWidget.jsx'
 
 // ─── Default form state ────────────────────────────────────────────────────────
 const DEFAULT_FORM = {
@@ -298,6 +300,45 @@ export default function App() {
           )}
         </div>
       )}
+
+      {/* ── Blog Section ── */}
+      <section id="calculator" className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          {/* Two Column Layout */}
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* Left Column - Blog Post (wider) */}
+            <div className="lg:col-span-8">
+              <BlogPost />
+            </div>
+            
+            {/* Right Column - Sidebar Widget (narrower) */}
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-24">
+                <SidebarWidget />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Saasfactor" className="h-6 opacity-80" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                © 2026 Saasfactor. All rights reserved.
+              </span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+              <a href="https://saasfactor.co/privacy" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</a>
+              <a href="https://saasfactor.co/terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</a>
+              <a href="mailto:hello@saasfactor.co" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Contact</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
