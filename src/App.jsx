@@ -56,7 +56,7 @@ function validateStep(step, data) {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [step, setStep]       = useState(1)       // 1–4 wizard, 5 = partial results, 6 = full results
+  const [step, setStep]       = useState(1)
   const [direction, setDir]   = useState(1)
   const [form, setForm]       = useState(DEFAULT_FORM)
   const [errors, setErrors]   = useState({})
@@ -64,7 +64,6 @@ export default function App() {
   const [leadData, setLead]   = useState(null)
   const [vcSkippedByUser, setVcSkippedByUser] = useState(false)
 
-  // Live confidence score (always uses current vcSkippedByUser flag)
   const liveResults = form.stage ? runValuation(form, { skipVC: vcSkippedByUser }) : null
 
   function handleChange(field, value) {
@@ -80,7 +79,6 @@ export default function App() {
       setDir(1)
       setStep(s => s + 1)
     } else {
-      // Step 4 submitted with data — VC runs if exitValue is present
       const r = runValuation(form, { skipVC: false })
       setResults(r)
       setDir(1)
@@ -89,7 +87,6 @@ export default function App() {
   }
 
   function handleSkipStep4() {
-    // User explicitly skips Step 4 — VC Method will not run
     setVcSkippedByUser(true)
     const r = runValuation(form, { skipVC: true })
     setResults(r)
@@ -98,7 +95,6 @@ export default function App() {
   }
 
   function handleAddVCAssumptions() {
-    // Return to Step 4 without resetting any data
     setDir(-1)
     setStep(4)
   }
@@ -125,7 +121,6 @@ export default function App() {
   }
 
   const STEP_LABELS = ['Basics', 'Scorecard', 'Financials', 'Capital']
-
   const isWizard = step >= 1 && step <= 4
 
   return (
@@ -141,7 +136,7 @@ export default function App() {
         <span style={{fontSize:'12px',color:'#AAAAAA',letterSpacing:'.04em'}}>saasfactor.co</span>
       </header>
 
-      {/* ── Blog Title (Above Calculator) ── */}
+      {/* ── Title Section ── */}
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center">
@@ -153,186 +148,182 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── Calculator + Widget Section ── */}
+      {/* ── Calculator Section (Centered, Full Width) ── */}
       <section className="bg-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-8">
-            {/* Left Column - Calculator */}
-            <div className="lg:col-span-8">
-              <main className="max-w-2xl mx-auto pb-8">
-                {/* Progress bar — wizard only */}
-                {isWizard && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-8"
-                  >
-                    <StepProgress currentStep={step} totalSteps={4} labels={STEP_LABELS} />
-                  </motion.div>
-                )}
+        <div className="max-w-2xl mx-auto px-4">
+          {/* Progress bar — wizard only */}
+          {isWizard && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <StepProgress currentStep={step} totalSteps={4} labels={STEP_LABELS} />
+            </motion.div>
+          )}
 
-                {/* Results header — only for full results (step 6) */}
-                {step === 6 && (
+          {/* Results header — only for full results (step 6) */}
+          {step === 6 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-500/10 mb-3">
+                <TrendingUp size={12} className="text-brand-500" />
+                <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">Valuation Complete</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── Step content ── */}
+          <AnimatePresence mode="wait" custom={direction}>
+            {/* Wizard steps 1–4 */}
+            {isWizard && (
+              <AnimatedStep key={`step-${step}`} stepKey={`step-${step}`} direction={direction}>
+                <div className="card p-6 sm:p-8">
+                  {step === 1 && (
+                    <Step1Basics data={form} onChange={handleChange} errors={errors} />
+                  )}
+                  {step === 2 && (
+                    <Step2Qualitative data={form} onChange={handleChange} />
+                  )}
+                  {step === 3 && (
+                    <Step3Financial data={form} onChange={handleChange} errors={errors} />
+                  )}
+                  {step === 4 && (
+                    <Step4Investment data={form} onChange={handleChange} errors={errors} />
+                  )}
+
+                  {/* Nav buttons */}
+                  <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={goBack}
+                        disabled={step === 1}
+                        className="btn-secondary"
+                      >
+                        Back
+                      </button>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-400 dark:text-gray-600 hidden sm:block">
+                          {step} of 4
+                        </span>
+                        <button
+                          onClick={goNext}
+                          className="btn-primary"
+                        >
+                          {step === 4 ? 'See My Valuation' : 'Continue'}
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    {/* Skip option — only on Step 4 */}
+                    {step === 4 && (
+                      <div className="flex justify-center">
+                        <button
+                          onClick={handleSkipStep4}
+                          className="btn-ghost text-xs"
+                        >
+                          Skip this step
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tip card below wizard */}
+                {step === 1 && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-4 rounded-xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
                   >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-500/10 mb-3">
-                      <TrendingUp size={12} className="text-brand-500" />
-                      <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">Valuation Complete</span>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">How it works</p>
+                    <div className="space-y-1.5">
+                      {['4-step form — takes under 3 minutes', 'We run 5 industry-standard valuation methods', 'Get a blended estimate calibrated to your stage', 'Unlock a full investor-ready report'].map((t, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <span className="w-4 h-4 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i+1}</span>
+                          {t}
+                        </div>
+                      ))}
                     </div>
                   </motion.div>
                 )}
+              </AnimatedStep>
+            )}
 
-                {/* ── Step content ── */}
-                <AnimatePresence mode="wait" custom={direction}>
-                  {/* Wizard steps 1–4 */}
-                  {isWizard && (
-                    <AnimatedStep key={`step-${step}`} stepKey={`step-${step}`} direction={direction}>
-                      <div className="card p-6 sm:p-8">
-                        {step === 1 && (
-                          <Step1Basics data={form} onChange={handleChange} errors={errors} />
-                        )}
-                        {step === 2 && (
-                          <Step2Qualitative data={form} onChange={handleChange} />
-                        )}
-                        {step === 3 && (
-                          <Step3Financial data={form} onChange={handleChange} errors={errors} />
-                        )}
-                        {step === 4 && (
-                          <Step4Investment data={form} onChange={handleChange} errors={errors} />
-                        )}
+            {/* Step 5: Blurred results preview + lead capture modal */}
+            {step === 5 && results && (
+              <AnimatedStep key="partial" stepKey="partial" direction={direction}>
+                <div
+                  className="pointer-events-none select-none"
+                  style={{ filter: 'blur(5px)', opacity: 0.6 }}
+                  aria-hidden="true"
+                >
+                  <ResultsPreview results={results} inputs={form} />
+                </div>
 
-                        {/* Nav buttons */}
-                        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <button
-                              onClick={goBack}
-                              disabled={step === 1}
-                              className="btn-secondary"
-                            >
-                              Back
-                            </button>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-gray-400 dark:text-gray-600 hidden sm:block">
-                                {step} of 4
-                              </span>
-                              <button
-                                onClick={goNext}
-                                className="btn-primary"
-                              >
-                                {step === 4 ? 'See My Valuation' : 'Continue'}
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                  <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                          {/* Skip option — only on Step 4 */}
-                          {step === 4 && (
-                            <div className="flex justify-center">
-                              <button
-                                onClick={handleSkipStep4}
-                                className="btn-ghost text-xs"
-                              >
-                                Skip this step
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                     style={{ backdropFilter: 'blur(12px)', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                  <LeadCaptureModal
+                    onSubmit={handleLeadSubmit}
+                    results={results}
+                    inputs={form}
+                  />
+                </div>
+              </AnimatedStep>
+            )}
 
-                      {/* Tip card below wizard */}
-                      {step === 1 && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.3 }}
-                          className="mt-4 rounded-xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
-                        >
-                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">How it works</p>
-                          <div className="space-y-1.5">
-                            {['4-step form — takes under 3 minutes', 'We run 5 industry-standard valuation methods', 'Get a blended estimate calibrated to your stage', 'Unlock a full investor-ready report'].map((t, i) => (
-                              <div key={i} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                <span className="w-4 h-4 rounded-full bg-brand-100 dark:bg-brand-500/20 text-brand-500 text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i+1}</span>
-                                {t}
-                              </div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatedStep>
-                  )}
+            {/* Step 6: Full results */}
+            {step === 6 && results && leadData && (
+              <AnimatedStep key="full" stepKey="full" direction={direction}>
+                <FullResults
+                  results={results}
+                  inputs={form}
+                  leadData={leadData}
+                  onReset={handleReset}
+                  onAddVCAssumptions={handleAddVCAssumptions}
+                />
+              </AnimatedStep>
+            )}
+          </AnimatePresence>
 
-                  {/* Step 5: Blurred results preview + lead capture modal */}
-                  {step === 5 && results && (
-                    <AnimatedStep key="partial" stepKey="partial" direction={direction}>
-                      {/* Blurred background — not interactive */}
-                      <div
-                        className="pointer-events-none select-none"
-                        style={{ filter: 'blur(5px)', opacity: 0.6 }}
-                        aria-hidden="true"
-                      >
-                        <ResultsPreview results={results} inputs={form} />
-                      </div>
+          {/* ── Sticky mobile next button ── */}
+          {isWizard && (
+            <div className="fixed bottom-0 inset-x-0 sm:hidden border-t border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 glass px-4 py-3 space-y-2">
+              <button onClick={goNext} className="btn-primary w-full">
+                {step === 4 ? 'See My Valuation' : 'Continue'}
+              </button>
+              {step === 4 && (
+                <button onClick={handleSkipStep4} className="btn-ghost w-full text-xs">
+                  Skip this step
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
 
-                      {/* Fixed overlay + modal */}
-                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                           style={{ backdropFilter: 'blur(12px)', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                        <LeadCaptureModal
-                          onSubmit={handleLeadSubmit}
-                          results={results}
-                          inputs={form}
-                        />
-                      </div>
-                    </AnimatedStep>
-                  )}
-
-                  {/* Step 6: Full results */}
-                  {step === 6 && results && leadData && (
-                    <AnimatedStep key="full" stepKey="full" direction={direction}>
-                      <FullResults
-                        results={results}
-                        inputs={form}
-                        leadData={leadData}
-                        onReset={handleReset}
-                        onAddVCAssumptions={handleAddVCAssumptions}
-                      />
-                    </AnimatedStep>
-                  )}
-                </AnimatePresence>
-
-                {/* ── Sticky mobile next button ── */}
-                {isWizard && (
-                  <div className="fixed bottom-0 inset-x-0 sm:hidden border-t border-gray-100 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 glass px-4 py-3 space-y-2">
-                    <button onClick={goNext} className="btn-primary w-full">
-                      {step === 4 ? 'See My Valuation' : 'Continue'}
-                    </button>
-                    {step === 4 && (
-                      <button onClick={handleSkipStep4} className="btn-ghost w-full text-xs">
-                        Skip this step
-                      </button>
-                    )}
-                  </div>
-                )}
-              </main>
+      {/* ── Blog Content + CTA Widget (Two Columns) ── */}
+      <section className="border-t border-gray-200 dark:border-gray-800 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* Left Column - Blog Post */}
+            <div className="lg:col-span-8">
+              <BlogPost />
             </div>
             
-            {/* Right Column - Widget */}
+            {/* Right Column - Sticky CTA Widget */}
             <div className="lg:col-span-4">
               <div className="lg:sticky lg:top-24">
                 <SidebarWidget />
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Blog Section ── */}
-      <section id="blog" className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <BlogPost />
         </div>
       </section>
 
