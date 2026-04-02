@@ -504,62 +504,58 @@ export function FullResults({ results, inputs, leadData, onReset, onAddVCAssumpt
         </div>
       </div>
 
-      {/* ── Unified method card grid + detail panel ── */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-          Valuation Methods — select one to explore
-        </p>
-
-        {/* Card grid — acts as the navigation */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {/* ── Master-Detail Layout: Methods (30%) | Content (70%) ── */}
+      <div className="grid lg:grid-cols-10 gap-4">
+        {/* Left side — Method Tabs (30%) */}
+        <div className="lg:col-span-3 space-y-2">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Methods
+          </p>
           {methodCards.map(({ key, value }) => {
             const meta = METHOD_META[key]
             const c = colorMap[meta.color]
             const Icon = meta.icon
             const isActive = activeMethod === key
-            const isLocked = false
 
             return (
               <button
                 key={key}
                 onClick={() => setActiveMethod(key)}
-                className={`rounded-xl p-3.5 border text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50
+                className={`w-full rounded-xl p-3 border text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 flex items-center gap-3
                   ${isActive
-                    ? `${c.activeBg} border-transparent shadow-lg`
+                    ? `${c.activeBg} border-transparent shadow-md`
                     : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-brand-200 dark:hover:border-brand-700'
                   }`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center
-                    ${isActive ? 'bg-white/20' : c.icon}`}>
-                    <Icon size={14} className={isActive ? 'text-white' : c.text} />
-                  </div>
-                  {isLocked && !isActive && (
-                    <Lock size={11} className="text-gray-300 dark:text-gray-600" />
-                  )}
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                  ${isActive ? 'bg-white/20' : c.icon}`}>
+                  <Icon size={16} className={isActive ? 'text-white' : c.text} />
                 </div>
-                <p className={`text-[11px] font-medium mb-0.5 ${isActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
-                  {meta.shortLabel}
-                </p>
-                <p className={`text-sm font-bold ${
-                  isActive ? 'text-white' : value > 0 ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'
-                }`}>
-                  {isLocked ? 'Locked' : value > 0 ? formatCurrency(value) : 'N/A'}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-medium truncate ${isActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {meta.shortLabel}
+                  </p>
+                  <p className={`text-sm font-bold truncate ${
+                    isActive ? 'text-white' : value > 0 ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600'
+                  }`}>
+                    {value > 0 ? formatCurrency(value) : 'N/A'}
+                  </p>
+                </div>
               </button>
             )
           })}
         </div>
 
-        {/* Detail panel — renders below the grid, animates on switch */}
-        <div className="mt-4">
+        {/* Right side — Content Panel (70%) */}
+        <div className="lg:col-span-7">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeMethod}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.22 }}
+              className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 h-full"
             >
               <MethodDetailPanel
                 methodKey={activeMethod}
