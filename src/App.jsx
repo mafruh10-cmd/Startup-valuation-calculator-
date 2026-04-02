@@ -149,7 +149,7 @@ export default function App() {
 
       {/* ── Calculator Section (Centered, Full Width) ── */}
       <section className="bg-white py-8">
-        <div className="mx-auto px-4" style={{maxWidth: '44rem'}}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
           {/* Progress bar — wizard only */}
           {isWizard && (
             <motion.div
@@ -277,25 +277,21 @@ export default function App() {
               </AnimatedStep>
             )}
 
-            {/* Step 6: Full results with CTA */}
+            {/* Step 6: Full results with CTA below */}
             {step === 6 && results && leadData && (
               <AnimatedStep key="full" stepKey="full" direction={direction}>
-                <div className="grid lg:grid-cols-12 gap-6">
-                  {/* Results - Main content */}
-                  <div className="lg:col-span-9">
-                    <FullResults
-                      results={results}
-                      inputs={form}
-                      leadData={leadData}
-                      onReset={handleReset}
-                      onAddVCAssumptions={handleAddVCAssumptions}
-                    />
-                  </div>
-                  {/* Compact CTA - Side widget */}
-                  <div className="lg:col-span-3">
-                    <div className="lg:sticky lg:top-24">
-                      <CompactCTA />
-                    </div>
+                <div className="max-w-4xl mx-auto">
+                  {/* Results - Full width */}
+                  <FullResults
+                    results={results}
+                    inputs={form}
+                    leadData={leadData}
+                    onReset={handleReset}
+                    onAddVCAssumptions={handleAddVCAssumptions}
+                  />
+                  {/* Horizontal CTA - Below results */}
+                  <div className="mt-8">
+                    <CompactCTA />
                   </div>
                 </div>
               </AnimatedStep>
