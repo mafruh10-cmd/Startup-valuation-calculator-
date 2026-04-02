@@ -138,3 +138,31 @@
     -moz-appearance: textfield;
   }
 }
+
+/* Mobile responsive adjustments */
+@media (max-width: 1024px) {
+  .card {
+    margin: 0 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1rem !important;
+    margin: 0;
+  }
+  
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}

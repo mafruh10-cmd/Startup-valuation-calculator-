@@ -14,6 +14,7 @@ import {
 import { ResultsPreview, LeadCaptureModal, FullResults } from './components/Results.jsx'
 import BlogPost from './components/BlogPost.jsx'
 import SidebarWidget from './components/SidebarWidget.jsx'
+import CompactCTA from './components/CompactCTA.jsx'
 
 // ─── Default form state ────────────────────────────────────────────────────────
 const DEFAULT_FORM = {
@@ -276,16 +277,27 @@ export default function App() {
               </AnimatedStep>
             )}
 
-            {/* Step 6: Full results */}
+            {/* Step 6: Full results with CTA */}
             {step === 6 && results && leadData && (
               <AnimatedStep key="full" stepKey="full" direction={direction}>
-                <FullResults
-                  results={results}
-                  inputs={form}
-                  leadData={leadData}
-                  onReset={handleReset}
-                  onAddVCAssumptions={handleAddVCAssumptions}
-                />
+                <div className="grid lg:grid-cols-12 gap-6">
+                  {/* Results - Main content */}
+                  <div className="lg:col-span-9">
+                    <FullResults
+                      results={results}
+                      inputs={form}
+                      leadData={leadData}
+                      onReset={handleReset}
+                      onAddVCAssumptions={handleAddVCAssumptions}
+                    />
+                  </div>
+                  {/* Compact CTA - Side widget */}
+                  <div className="lg:col-span-3">
+                    <div className="lg:sticky lg:top-24">
+                      <CompactCTA />
+                    </div>
+                  </div>
+                </div>
               </AnimatedStep>
             )}
           </AnimatePresence>
@@ -306,32 +318,34 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── Blog Content + CTA Widget (Centered Blog with Right CTA) ── */}
-      <section className="border-t border-gray-200 dark:border-gray-800 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* Left spacer */}
-            <div className="hidden lg:block lg:col-span-1" />
-            
-            {/* Blog - Centered */}
-            <div className="lg:col-span-7">
-              <div className="max-w-2xl mx-auto">
-                <BlogPost />
+      {/* ── Blog Content + CTA Widget (Hidden when showing results) ── */}
+      {step !== 6 && (
+        <section className="border-t border-gray-200 dark:border-gray-800 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              {/* Left spacer */}
+              <div className="hidden lg:block lg:col-span-1" />
+              
+              {/* Blog - Centered */}
+              <div className="lg:col-span-7">
+                <div className="max-w-2xl mx-auto">
+                  <BlogPost />
+                </div>
               </div>
-            </div>
-            
-            {/* CTA Widget - Right side */}
-            <div className="lg:col-span-3">
-              <div className="lg:sticky lg:top-24">
-                <SidebarWidget />
+              
+              {/* CTA Widget - Right side */}
+              <div className="lg:col-span-3">
+                <div className="lg:sticky lg:top-24">
+                  <SidebarWidget />
+                </div>
               </div>
+              
+              {/* Right spacer */}
+              <div className="hidden lg:block lg:col-span-1" />
             </div>
-            
-            {/* Right spacer */}
-            <div className="hidden lg:block lg:col-span-1" />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Footer ── */}
       <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
