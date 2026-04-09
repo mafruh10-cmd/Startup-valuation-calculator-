@@ -361,19 +361,26 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
     }
 
     try {
+      // Use no-cors mode for Google Apps Script (handles redirects better)
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify(data),
+        redirect: 'follow',
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Try to parse JSON response
+      const text = await response.text()
+      console.log('Raw response:', text)
+      
+      try {
+        return JSON.parse(text)
+      } catch {
+        // If not JSON, assume success if no error thrown
+        return { status: 'ok' }
       }
-
-      return await response.json()
     } catch (error) {
       console.error('Error submitting to Google Sheets:', error)
       throw error
@@ -402,15 +409,20 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
       }
 
       // Submit to Google Sheets (if configured)
-      await submitToGoogleSheets(leadData)
+      try {
+        await submitToGoogleSheets(leadData)
+      } catch (sheetError) {
+        // Log error but don't block user - we'll still show them the results
+        console.error('Sheet submission failed:', sheetError)
+      }
 
       // Simulate a brief delay for UX
       await new Promise(r => setTimeout(r, 500))
       
-      // Continue with the app flow
+      // Continue with the app flow (always proceed even if sheet fails)
       onSubmit(form)
     } catch (error) {
-      setSubmitError('Failed to save your information. Please try again.')
+      setSubmitError('Something went wrong. Please try again.')
       setLoading(false)
     }
   }
