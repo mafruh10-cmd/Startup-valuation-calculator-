@@ -335,10 +335,17 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
   // Get user location from IP (free service, no API key needed)
   async function getLocation() {
     try {
-      const response = await fetch('https://ipapi.co/json/')
+      // Try ipapi.co first
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
+      const response = await fetch('https://ipapi.co/json/', {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
       if (!response.ok) throw new Error('Location fetch failed')
       const data = await response.json()
-      // Return City, Country format
       return `${data.city || 'Unknown'}, ${data.country_name || 'Unknown'}`
     } catch (error) {
       console.warn('Could not detect location:', error)
@@ -394,10 +401,15 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
     
     setLoading(true)
     setSubmitError(null)
+    
+    // Debug: log the script URL
+    console.log('Google Script URL:', GOOGLE_SCRIPT_URL)
+    console.log('Script URL configured:', !!GOOGLE_SCRIPT_URL)
 
     try {
       // Get location asynchronously
       const location = await getLocation()
+      console.log('Location detected:', location)
 
       // Prepare lead data for Google Sheets
       const leadData = {
@@ -407,10 +419,13 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
         location: location,
         source: 'Sales Valuation Calculator'
       }
+      
+      console.log('Submitting lead data:', leadData)
 
       // Submit to Google Sheets (if configured)
       try {
-        await submitToGoogleSheets(leadData)
+        const result = await submitToGoogleSheets(leadData)
+        console.log('Sheet submission result:', result)
       } catch (sheetError) {
         // Log error but don't block user - we'll still show them the results
         console.error('Sheet submission failed:', sheetError)
@@ -422,6 +437,7 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
       // Continue with the app flow (always proceed even if sheet fails)
       onSubmit(form)
     } catch (error) {
+      console.error('Form submission error:', error)
       setSubmitError('Something went wrong. Please try again.')
       setLoading(false)
     }
