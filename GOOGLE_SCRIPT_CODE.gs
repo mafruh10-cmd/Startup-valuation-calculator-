@@ -1,19 +1,6 @@
 /**
  * Google Apps Script for Saasfactor Lead Capture
  * Sheet: https://docs.google.com/spreadsheets/d/1OebqJNcRCHf5kAb8fmYhh4vzQDPo5I9wZTBkQYrHXgY/edit
- * 
- * DEPLOYMENT INSTRUCTIONS:
- * 1. Open your Google Sheet
- * 2. Go to Extensions → Apps Script
- * 3. Delete the default code and paste ALL of this
- * 4. Click Save (floppy disk icon) - name it "Lead Capture"
- * 5. Click Deploy → New deployment
- * 6. Type: Web app
- * 7. Execute as: Me
- * 8. Who has access: Anyone  
- * 9. Click Deploy and authorize
- * 10. Copy the Web App URL (ends in /exec)
- * 11. Add to Vercel as VITE_GOOGLE_SCRIPT_URL
  */
 
 function doPost(e) {
@@ -42,48 +29,25 @@ function doPost(e) {
       data.source || "Sales Valuation Calculator"
     ]);
     
-    // Return success with CORS headers
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "ok", message: "Lead saved" }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      });
+    // Create success response
+    var output = ContentService.createTextOutput(JSON.stringify({ status: "ok", message: "Lead saved" }));
+    output.setMimeType(ContentService.MimeType.JSON);
+    return output;
       
   } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "error", message: err.message }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      });
+    // Create error response
+    var output = ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.message }));
+    output.setMimeType(ContentService.MimeType.JSON);
+    return output;
   }
 }
 
 // Handle GET requests (for testing)
 function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ 
-      status: "API is working", 
-      message: "Send POST request with lead data" 
-    }))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({
-      "Access-Control-Allow-Origin": "*"
-    });
-}
-
-// Handle CORS preflight
-function doOptions(e) {
-  return ContentService
-    .createTextOutput("")
-    .setHeaders({
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    });
+  var output = ContentService.createTextOutput(JSON.stringify({ 
+    status: "API is working", 
+    message: "Send POST request with lead data"
+  }));
+  output.setMimeType(ContentService.MimeType.JSON);
+  return output;
 }
