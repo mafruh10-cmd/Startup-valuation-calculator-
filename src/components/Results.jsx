@@ -324,9 +324,27 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
   const [form, setForm] = useState({ name: '', email: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   const { blended, confidence } = results
   const startupName = inputs.startupName
+
+  // Google Apps Script Web App URL - Replace with your deployed script URL
+  const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL || ''
+
+  // Get user location from IP (free service, no API key needed)
+  async function getLocation() {
+    try {
+      const response = await fetch('https://ipapi.co/json/')
+      if (!response.ok) throw new Error('Location fetch failed')
+      const data = await response.json()
+      // Return City, Country format
+      return `${data.city || 'Unknown'}, ${data.country_name || 'Unknown'}`
+    } catch (error) {
+      console.warn('Could not detect location:', error)
+      return 'Unknown'
+    }
+  }
 
   function validate() {
     const e = {}
@@ -336,13 +354,65 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
     return e
   }
 
+  async function submitToGoogleSheets(data) {
+    if (!GOOGLE_SCRIPT_URL) {
+      console.warn('Google Script URL not configured. Skipping sheet submission.')
+      return { success: true }
+    }
+
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error submitting to Google Sheets:', error)
+      throw error
+    }
+  }
+
   async function handleSubmit(ev) {
     ev.preventDefault()
     const e = validate()
     if (Object.keys(e).length) { setErrors(e); return }
+    
     setLoading(true)
-    await new Promise(r => setTimeout(r, 900))
-    onSubmit(form)
+    setSubmitError(null)
+
+    try {
+      // Get location asynchronously
+      const location = await getLocation()
+
+      // Prepare lead data for Google Sheets
+      const leadData = {
+        timestamp: new Date().toISOString(),
+        name: form.name.trim(),
+        email: form.email.trim(),
+        location: location,
+        source: 'Sales Valuation Calculator'
+      }
+
+      // Submit to Google Sheets (if configured)
+      await submitToGoogleSheets(leadData)
+
+      // Simulate a brief delay for UX
+      await new Promise(r => setTimeout(r, 500))
+      
+      // Continue with the app flow
+      onSubmit(form)
+    } catch (error) {
+      setSubmitError('Failed to save your information. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -378,6 +448,11 @@ export function LeadCaptureModal({ onSubmit, results, inputs }) {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+            {submitError && (
+              <div className="rounded-lg p-3 bg-red-50 border border-red-200 text-red-600 text-xs">
+                {submitError}
+              </div>
+            )}
             <div>
               <label className="label">Full Name</label>
               <input

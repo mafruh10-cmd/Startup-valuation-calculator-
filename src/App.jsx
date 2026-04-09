@@ -130,7 +130,9 @@ export default function App() {
       {/* ── Top Nav ── */}
       <header style={{background:'#fff',borderBottom:'1px solid #E0E1E4',height:'60px',position:'sticky',top:0,zIndex:40,display:'flex',alignItems:'center',padding:'0 32px',justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
-          <img src={logo} alt="Saasfactor" style={{height:'28px',display:'block'}} />
+          <a href="https://www.saasfactor.co" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center'}}>
+            <img src={logo} alt="Saasfactor" style={{height:'28px',display:'block'}} />
+          </a>
           <span style={{fontSize:'10px',fontWeight:700,letterSpacing:'.10em',textTransform:'uppercase',color:'#1AC8D4',background:'rgba(26,200,212,.10)',padding:'3px 10px',borderRadius:'20px',border:'1px solid rgba(26,200,212,.18)'}}>
             Valuation Tool
           </span>
@@ -348,7 +350,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Saasfactor" className="h-6 opacity-80" />
+              <a href="https://www.saasfactor.co" target="_blank" rel="noopener noreferrer">
+                <img src={logo} alt="Saasfactor" className="h-6 opacity-80" />
+              </a>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 © 2026 Saasfactor. All rights reserved.
               </span>
